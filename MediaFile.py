@@ -15,31 +15,40 @@ def supported(path: str) -> bool:
     if not os.path.exists(path):
         raise FileNotFoundError(f'{path} does not exist!')
 
+    if not os.path.isfile(path):
+        Log.info(f'{path} is not a file!')
+        return False
+
     basename = os.path.basename(path)
     filename = basename.split('.')
     return filename[1].lower() in supported_formats
 
 
-def info(path: str) -> cv2.VideoCapture:
-    if not supported(path):
-        raise KeyError('Unsupported file')
+class Media:
+    def __init__(self, filepath: str) -> None:
+        if not supported(filepath):
+            raise KeyError('Unsupported file')
+        self.name = os.path.basename(filepath)
+        self.loc = os.path.dirname(filepath)
+        self.path = filepath
+        self.size = os.path.getsize(self.path)
 
-    video = cv2.VideoCapture(path)
+        self.video = cv2.VideoCapture(filepath)
 
-    if not video.isOpened():
-        raise IOError(f'Cannot open {path}')
+        if not self.video.isOpened():
+            raise IOError(f'Cannot open {filepath}')
 
-    frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-    frame_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    frame_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = video.get(cv2.CAP_PROP_FPS)
-    duration = frame_count / fps
+        self.frames = int(self.video.get(cv2.CAP_PROP_FRAME_COUNT))
+        self.width = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.height = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.fps = self.video.get(cv2.CAP_PROP_FPS)
+        self.length = self.frames / self.fps
 
-    Log.info(f'Video {path} has:')
-    Log.info(f'- {frame_count} frames')
-    Log.info(f'- width: {frame_width}')
-    Log.info(f'- height: {frame_height}')
-    Log.info(f'- fps: {fps}')
-    Log.info(f'- length: {duration} seconds')
-
-    return video
+    def print(self):
+        Log.info(f'Video {self.path} has:')
+        Log.info(f'- size: {self.size}')
+        Log.info(f'- {self.frames} frames')
+        Log.info(f'- width: {self.width}')
+        Log.info(f'- height: {self.height}')
+        Log.info(f'- fps: {self.fps}')
+        Log.info(f'- length: {self.length} seconds')
