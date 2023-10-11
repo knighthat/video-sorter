@@ -1,14 +1,7 @@
 import cv2
 import os
 import PrettierLog as Log
-
-supported_formats = [
-    'avi',
-    'mp4',
-    'mkv',
-    'mov',
-    'flv',
-]
+from Enums import SupportedFormat
 
 
 def supported(path: str) -> bool:
@@ -21,7 +14,11 @@ def supported(path: str) -> bool:
 
     basename = os.path.basename(path)
     filename = basename.split('.')
-    return filename[1].lower() in supported_formats
+    try:
+        SupportedFormat(filename[1].lower())
+        return True
+    except ValueError:
+        return False
 
 
 class Media:
