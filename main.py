@@ -1,8 +1,9 @@
-import sys
-import PrettierLog as Log
-import MediaFile as MF
-import Command
 import os
+import sys
+
+import Command
+import MediaFile as MF
+import PrettierLog as Log
 import Sorter
 
 # Command template:
@@ -30,7 +31,7 @@ if __name__ == '__main__':
         Log.info(f'Option: {cmd.sort_opt}')
         Log.info(f'Value: {cmd.value}')
 
-        isValid= Command.validate(cmd)
+        isValid = Command.validate(cmd)
         if not isValid[0]:
             Log.err(isValid[1])
             sys.exit(1)
@@ -43,14 +44,5 @@ if __name__ == '__main__':
                 media.print()
                 Sorter.sort(media, cmd.sort_by, cmd.sort_opt, cmd.value)
 
-
-        # if not MF.supported(path):
-        #     Log.err('Unsupported file')
-        #     Log.err(f'Support files: {MF.supported_formats}')
-        #     sys.exit(1)
-        #
-        # video = MF.info(path)
-
     except Exception as e:
         Log.ex(e)
-
