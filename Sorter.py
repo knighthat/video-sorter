@@ -64,23 +64,7 @@ def _sort_by_length(media: Media, option: SortOption, value: str) -> bool:
         Log.warn(f'with "#" is a single digit number')
         return False
 
-    hour, minute, second = value.split(":")
-    if int(hour) > 0:
-        minute += int(hour) * 60  # Hour to minutes
-    if int(minute) > 0:
-        second += int(minute) * 60  # Minute to seconds
-
-    result = False
-    if option == SortOption.G:
-        result = media.length > int(second)
-    if option == SortOption.L:
-        result = media.length < int(second)
-    if option == SortOption.GE:
-        result = media.length >= int(second)
-    if option == SortOption.LE:
-        result = media.length <= int(second)
-
-    return result
+    return _to_sort_or_not_to_sort(option, media.length, _time_converter(value))
 
 
 def _sort_by_size(media: Media, option: SortOption, value: str) -> bool:
@@ -89,17 +73,7 @@ def _sort_by_size(media: Media, option: SortOption, value: str) -> bool:
     if expected < 0:
         raise KeyError(f'Size of file cannot be below 0!')
 
-    result = False
-    if option == SortOption.G:
-        result = media.size > expected
-    if option == SortOption.L:
-        result = media.size < expected
-    if option == SortOption.GE:
-        result = media.size >= expected
-    if option == SortOption.LE:
-        result = media.size <= expected
-
-    return result
+    return _to_sort_or_not_to_sort(option, media.size, expected)
 
 
 def _size_converter(value: str) -> int:
@@ -120,3 +94,37 @@ def _size_converter(value: str) -> int:
         return _size_converter(megabytes) * 1024
 
     raise KeyError(f'{value} is not a valid size')
+
+
+def _time_converter(time: str) -> int:
+    split = time.split(":")
+    hour, minute = int(split[0]), int(split[1]),
+
+    second = _to_second(int(split[2]), 's')
+    second += _to_second(minute, 'm')
+    second += _to_second(hour, 'h')
+
+    return second
+
+
+def _to_second(time: int, t: str) -> int:
+    if t == 'm':
+        return time * 60
+    if t == 'h':
+        return _to_second(time * 60, 'm')
+
+    return time
+
+
+def _to_sort_or_not_to_sort(option: SortOption, value: int, expected: int) -> bool:
+    result = False
+    if option == SortOption.G:
+        result = value > expected
+    if option == SortOption.L:
+        result = value < expected
+    if option == SortOption.GE:
+        result = value >= expected
+    if option == SortOption.LE:
+        result = value <= expected
+
+    return result
