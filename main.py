@@ -62,9 +62,12 @@ if __name__ == '__main__':
             filepath = os.path.join(cmd.dir, file)
             Log.deb(f'Checking file {filepath}')
             if MF.supported(filepath):
-                media = MF.Media(filepath)
-                media.print()
-                Sorter.sort(media, cmd.sort_by, cmd.sort_opt, cmd.value)
+                try:
+                    media = MF.Media(filepath)
+                    media.print()
+                    Sorter.sort(media, cmd.sort_by, cmd.sort_opt, cmd.value)
+                except OSError:
+                    continue
 
     except Exception as e:
         Log.ex(e)
